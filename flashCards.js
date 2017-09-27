@@ -5,13 +5,52 @@ const inquirer = require('inquirer');
 const clozeCard = require('./ClozeCard.js');
 const plainCard = require('./PlainCard.js');
 
+const userCards = require('./userCards.json');    
+
+
 let count = 0;
 let cardsNum = 0;
 let cards = [];
 
+let wins = 0;
+let losses = 0;
+
+const printScore = (win, loss)=>{
+    log('\nTally:\n',
+    'Correct: ', wins,
+    '\n Incorrect: ', losses)
+}
+
+const quizLogic = ()=>{
+    if (count < cardsNum){
+        inquirer.prompt([
+        {
+            type : 'input',
+            message : '\nQuestion:\n   '+ userCards.cards[count].front,
+            name : 'question'
+        }
+        ])
+        .then(function(userResponse){
+            let answer = userResponse.question.toUpperCase();
+            let correct = userCards.cards[count].back.toUpperCase();
+            if(answer == correct){
+                log('Correct\n');
+                wins ++;
+                count ++;    
+                quizLogic();
+            } else {
+                log('\nSorry, the correct answer was:\n ', userCards.cards[count].back);
+                count ++;    
+                losses ++;
+                quizLogic();              
+            }
+        })
+    } else {
+        printScore();
+    }
+}
+
 const numCards = () =>{
-    // Write an empty string to user cards file to clear it
-    fs.writeFile('userCards.json', '');                            
     inquirer.prompt([
         {
             type : 'input',
@@ -40,7 +79,7 @@ const numCards = () =>{
             numCards();
         } else {
             cardsNum = inquirerResponse.cardsNum            
-            log('\n"Got it. We\'ll start you out with '+cardsNum+' cards."\n');
+            log('"Got it. We\'ll start you out with '+cardsNum+' cards."\n');
             log('\n"Card Number: 1"');                
             buildCards();            
         }
@@ -79,12 +118,14 @@ const buildCards = ()=>{
                     log('\n"Card Number: '+cardNumber+'"');    
                 }
                 buildCards();
-                // log(cards);
             }
         })
-    } else {
-        fs.appendFile('userCards.json', JSON.stringify(cards));                        
-        log('\n"Form complete."\n');
+    } else {   
+        userCards.cards = cards;       
+        // log(userCards);                     
+        log('\n"Begin Quiz:"\n');
+        count = 0;        
+        quizLogic();
     }
 }
 
