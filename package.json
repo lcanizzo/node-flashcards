@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/lcanizzo/node-flashcards#readme",
   "dependencies": {
-    "inquirer": "^3.3.0"
+    "inquirer": "^3.3.0",
+    "jsonfile": "^4.0.0"
   }
 }
